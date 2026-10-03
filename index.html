@@ -37,14 +37,30 @@ button:active{transform:scale(.96)}
 }
 
 /* Guia de Encaixe de Rosto */
-.face-guide {
+.face-oval-guide {
   position: absolute;
-  inset: 15%;
-  border: 3px dashed rgba(0, 240, 255, 0.7);
+  width: 180px;
+  height: 240px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 3px dashed #00f0ff;
   border-radius: 50%;
+  /* Escurece tudo que está fora do oval */
+  box-shadow: 0 0 0 9999px rgba(5, 5, 16, 0.75);
   pointer-events: none;
-  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.35);
-  z-index: 5;
+  z-index: 10;
+}
+
+/* Guias discretos para os olhos (opcional para dar mais realismo) */
+.face-oval-guide::before {
+  content: "👁️   👁️";
+  position: absolute;
+  top: 35%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.2rem;
+  opacity: 0.3;
 }
 
 #webcam, #pic {
