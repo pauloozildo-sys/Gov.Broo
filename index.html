@@ -3,26 +3,56 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Gov.Bro - Memory Club</title>
+<title>Gov.Bro - Validação Ao Vivo</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Rajdhani:wght@600;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;user-select:none;-webkit-tap-highlight-color:transparent}
 html,body{width:100%;height:100%;overflow:hidden;background:#050510;color:#fff;font-family:'Rajdhani',sans-serif;touch-action:none}
-.screen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:20px;padding-top:max(20px,env(safe-area-inset-top));padding-bottom:max(20px,env(safe-area-inset-bottom))}
+
+.screen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:20px;}
 .screen.active{display:flex}
-h1{font-family:'Orbitron',sans-serif;font-size:2.4rem;color:#00f0ff;letter-spacing:4px;text-shadow:0 0 20px #00f0ff}
-.sub{color:#cbd5e1;font-size:1.1rem;max-width:300px}
-.tiny{color:#94a3b8;font-size:.8rem}
-button{padding:15px 28px;font-family:'Orbitron',sans-serif;font-size:.95rem;font-weight:800;border:none;border-radius:14px;color:#000;cursor:pointer;background:linear-gradient(135deg,#00f0ff,#0088ff);box-shadow:0 0 22px rgba(0,240,255,.6);width:80%;max-width:320px}
-button.b2{background:linear-gradient(135deg,#a855f7,#7c3aed);color:#fff;box-shadow:0 0 22px rgba(168,85,247,.6)}
-button.ok{background:linear-gradient(135deg,#00ff88,#00cc66)}
+
+h1{font-family:'Orbitron',sans-serif;font-size:2.2rem;color:#00f0ff;letter-spacing:3px;text-shadow:0 0 15px #00f0ff}
+.sub{color:#cbd5e1;font-size:1rem;max-width:320px}
+
+button{padding:14px 28px;font-family:'Orbitron',sans-serif;font-size:.95rem;font-weight:800;border:none;border-radius:12px;color:#000;cursor:pointer;background:linear-gradient(135deg,#00f0ff,#0088ff);box-shadow:0 0 20px rgba(0,240,255,.5);width:80%;max-width:300px}
+button.b2{background:linear-gradient(135deg,#a855f7,#7c3aed);color:#fff;box-shadow:0 0 20px rgba(168,85,247,.5)}
+button.ok{background:linear-gradient(135deg,#00ff88,#00cc66);box-shadow:0 0 20px rgba(0,255,136,.5)}
 button:active{transform:scale(.96)}
-#msg{font-family:'Orbitron',sans-serif;font-size:1rem;min-height:3.2em;color:#ffe600;text-shadow:0 0 8px rgba(255,230,0,.5);max-width:320px}
-#msg.bad{color:#ff3b6b}#msg.good{color:#00ff88}
-.wrap{width:min(78vw,320px);aspect-ratio:1;position:relative}
-#disc{width:100%;height:100%;border-radius:50%;overflow:hidden;border:4px solid #00f0ff;box-shadow:0 0 30px rgba(0,240,255,.5);background:#0a0a18;position:relative;touch-action:none}
-#pic{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
-#zoom{width:min(78vw,320px);accent-color:#00f0ff}
+
+#msg{font-family:'Orbitron',sans-serif;font-size:0.95rem;min-height:3em;color:#ffe600;text-shadow:0 0 8px rgba(255,230,0,.5);max-width:320px}
+#msg.bad{color:#ff3b6b} #msg.good{color:#00ff88}
+
+/* MOLDURA DO GOV.BR COM VÍDEO AO VIVO */
+.wrap{width:min(75vw,280px);aspect-ratio:1;position:relative}
+
+#frame-container{
+  width:100%;height:100%;
+  border-radius:24px;
+  overflow:hidden;
+  border:4px solid #00f0ff;
+  box-shadow:0 0 25px rgba(0,240,255,.4);
+  background:#0a0a18;
+  position:relative;
+}
+
+/* Guia de Encaixe de Rosto */
+.face-guide {
+  position: absolute;
+  inset: 15%;
+  border: 3px dashed rgba(0, 240, 255, 0.7);
+  border-radius: 50%;
+  pointer-events: none;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.35);
+  z-index: 5;
+}
+
+#webcam, #pic {
+  width:100%;height:100%;
+  object-fit:cover;
+  transform: scaleX(-1); /* Espelha a câmera frontal */
+}
+
 #chips{display:flex;gap:10px}
 .chip{font-family:'Orbitron',sans-serif;font-weight:800;padding:8px 14px;border-radius:10px;border:2px solid #334155;color:#64748b}
 .chip.on{border-color:#ffe600;color:#ffe600;box-shadow:0 0 18px rgba(255,230,0,.7)}
@@ -34,130 +64,181 @@ button:active{transform:scale(.96)}
 
 <div id="start" class="screen active">
   <h1>🛂 GOV.BRO</h1>
-  <p class="sub">Prove que é você. Ou não. Aqui errar também dá ponto.</p>
-  <button id="cam">📷 TIRAR SELFIE</button>
-  <button id="gal" class="b2">🖼️ ESCOLHER DA GALERIA</button>
-  <p class="tiny">Paródia. Sem ligação com nenhum órgão do governo. A foto fica só no seu aparelho.</p>
-  <input type="file" id="fcam" accept="image/*" capture="user" hidden>
-  <input type="file" id="fgal" accept="image/*" hidden>
+  <p class="sub">Validação Facial Burocrática. Encaixe seu rosto no retângulo ao vivo.</p>
+  <button id="start-cam">📷 ABRIR CÂMERA AO VIVO</button>
+  <p style="color:#64748b; font-size: 0.75rem; margin-top: 10px;">A câmera roda direto no seu navegador. Nenhuma imagem é enviada para fora.</p>
 </div>
 
 <div id="play" class="screen">
-  <p id="msg"></p>
-  <div class="wrap"><div id="disc"><img id="pic" alt="Seu rosto"></div></div>
-  <input type="range" id="zoom" min="0.5" max="2.2" step="0.01" value="1">
-  <button id="validate" class="ok">VALIDAR ROSTO</button>
-  <div id="chips"><div class="chip" data-v="10">+10</div><div class="chip" data-v="20">+20</div><div class="chip" data-v="50">+50</div></div>
+  <p id="msg">Aproxime o rosto e centralize no círculo...</p>
+
+  <div class="wrap">
+    <div id="frame-container">
+      <div id="guide" class="face-guide"></div>
+      <video id="webcam" autoplay playsinline muted></video>
+      <img id="pic" class="hide" alt="Sua Selfie">
+    </div>
+  </div>
+
+  <button id="validate" class="ok">📸 TIRAR FOTO E VALIDAR</button>
+
+  <div id="chips">
+    <div class="chip" data-v="10">+10</div>
+    <div class="chip" data-v="20">+20</div>
+    <div class="chip" data-v="50">+50</div>
+  </div>
+
   <p id="score">PTS: 0</p>
-  <button id="again" class="hide">🔄 DE NOVO</button>
+  <button id="again" class="hide">🔄 TENTAR NOVAMENTE</button>
   <button id="home" class="b2 hide">🏠 INÍCIO</button>
 </div>
 
+<canvas id="canvas" class="hide" width="600" height="600"></canvas>
+
 <script>
 const $ = id => document.getElementById(id);
-const disc = $('disc'), pic = $('pic'), msg = $('msg'), zoom = $('zoom');
+const webcam = $('webcam'), pic =$('pic'), guide = $('guide'), frameContainer =$('frame-container');
+const msg = $('msg'), canvas =$('canvas'), ctx = canvas.getContext('2d');
 const chips = [...document.querySelectorAll('.chip')];
-let x = 0, y = 0, s = 1, phase = 'start', round = 0, spinning = false;
 
-function show(id){ document.querySelectorAll('.screen').forEach(e=>e.classList.remove('active')); $(id).classList.add('active'); }
-function draw(){ pic.style.transform = `translate(${x}px,${y}px) scale(${s})`; }
+let mediaStream = null;
+let phase = 'live';
+let spinning = false;
 
-// ===== FOTO (recorte quadrado, tudo no aparelho) =====
-let photo = '';
-function onFile(e){
-  const f = e.target.files[0]; if(!f) return;
-  const r = new FileReader();
-  r.onload = ev => {
-    const im = new Image();
-    im.onload = () => {
-      const c = document.createElement('canvas'); c.width = c.height = 800;
-      const m = Math.min(im.width, im.height);
-      c.getContext('2d').drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,800,800);
-      photo = c.toDataURL('image/jpeg',0.9);
-      pic.src = photo; newRound(); show('play');
-    };
-    im.src = ev.target.result;
-  };
-  r.readAsDataURL(f); e.target.value = '';
-}
-$('cam').onclick = () => $('fcam').click();
-$('gal').onclick = () => $('fgal').click();
-$('fcam').onchange = onFile; $('fgal').onchange = onFile;
-
-// ===== RODADA =====
-function newRound(){
-  phase = 'adjust'; spinning = false; round++;
-  const size = disc.clientWidth || 300;
-  const ang = Math.random()*Math.PI*2, dist = size*(0.22 + Math.random()*0.12);
-  x = Math.cos(ang)*dist; y = Math.sin(ang)*dist;
-  s = Math.random() < 0.5 ? 0.65 : 1.8;
-  zoom.value = s; draw();
-  disc.style.transition = 'none'; disc.style.transform = 'rotate(0deg)';
-  chips.forEach(c=>c.classList.remove('on'));
-  msg.className = ''; msg.textContent = 'Centralize o rosto no círculo. Arraste e use o zoom.';
-  zoom.classList.remove('hide'); $('validate').classList.remove('hide');
-  $('again').classList.add('hide'); $('home').classList.add('hide');
+function show(id){ 
+  document.querySelectorAll('.screen').forEach(e=>e.classList.remove('active')); 
+  $(id).classList.add('active'); 
 }
 
-// ===== ARRASTAR =====
-let drag = null;
-disc.addEventListener('pointerdown', e => {
-  if(phase === 'spin'){ spin(); return; }
-  if(phase !== 'adjust') return;
-  drag = {px:e.clientX, py:e.clientY, x, y}; disc.setPointerCapture(e.pointerId);
-});
-disc.addEventListener('pointermove', e => {
-  if(!drag) return;
-  x = drag.x + (e.clientX - drag.px); y = drag.y + (e.clientY - drag.py); draw();
-});
-['pointerup','pointercancel'].forEach(t => disc.addEventListener(t, () => drag = null));
-zoom.addEventListener('input', () => { s = parseFloat(zoom.value); draw(); });
+// ===== INICIAR CÂMERA AO VIVO =====
+async function startCamera() {
+  try {
+    mediaStream = await navigator.mediaDevices.getUserMedia({ 
+      video: { facingMode: 'user', width: { ideal: 720 }, height: { ideal: 720 } }, 
+      audio: false 
+    });
+    webcam.srcObject = mediaStream;
+    webcam.classList.remove('hide');
+    pic.classList.add('hide');
+    guide.classList.remove('hide');
+    
+    phase = 'live';
+    msg.className = '';
+    msg.textContent = 'Encaixe seu rosto no círculo e aperte Validar!';
+    
+    $('validate').classList.remove('hide');
+    $('again').classList.add('hide');$('home').classList.add('hide');
+    chips.forEach(c => c.classList.remove('on'));
+    
+    frameContainer.style.transition = 'none';
+    frameContainer.style.transform = 'rotate(0deg)';
+    
+    show('play');
+  } catch (err) {
+    alert('Não foi possível acessar a câmera. Verifique as permissões!');
+  }
+}
 
-// ===== VALIDAR (ponto escondido: centro do círculo, zoom 1.05 a 1.35) =====
+function stopCamera() {
+  if (mediaStream) {
+    mediaStream.getTracks().forEach(track => track.stop());
+  }
+}
+
+$('start-cam').onclick = startCamera;
+
+// ===== MENSAGENS ENGRAÇADAS DE ERRO DE VALIDAÇÃO =====
+const failMessages = [
+  "❌ Iluminação insuficiente! Incline a cabeça 15° para a direita.",
+  "❌ Rosto muito expressivo! O sistema exige cara de tédio.",
+  "❌ Falha no Liveness! Pisque 3 vezes e tente de novo.",
+  "❌ Ambiente muito claro! Vá para um quarto escuro.",
+  "❌ Não reconhecido! Você não se parece com a foto do seu documento de 2012."
+];
+
+// ===== CAPTURAR FOTO E VALIDAR =====
 $('validate').onclick = () => {
-  if(phase !== 'adjust') return;
-  const size = disc.clientWidth;
-  const hit = Math.hypot(x,y)/size < 0.07 && s >= 1.05 && s <= 1.35;
-  zoom.classList.add('hide'); $('validate').classList.add('hide');
-  if(hit){
+  if (phase !== 'live') return;
+
+  // Tira o snapshot do vídeo no Canvas (espelhado)
+  ctx.save();
+  ctx.scale(-1, 1);
+  ctx.drawImage(webcam, -canvas.width, 0, canvas.width, canvas.height);
+  ctx.restore();
+
+  const photoUrl = canvas.toDataURL('image/jpeg', 0.9);
+  pic.src = photoUrl;
+
+  // Esconde o vídeo e mostra a foto estática congelada
+  webcam.classList.add('hide');
+  pic.classList.remove('hide');
+  guide.classList.add('hide');
+  stopCamera();
+
+  // Simulação de Validação Burocrática (30% de chance de dar certo)
+  const success = Math.random() < 0.3;
+  $('validate').classList.add('hide');
+
+  if (success) {
     addScore(100);
     msg.className = 'good';
-    msg.textContent = '✅ Rosto validado! +100 pontos. Agora toque na sua foto e gire!';
+    msg.textContent = '✅ ROSTO VALIDADO! +100 PTS! Toque na foto para girar a roleta!';
   } else {
     msg.className = 'bad';
-    msg.textContent = '❌ Você não passa no teste do Gov.Bro! Clique na sua foto.';
+    msg.textContent = failMessages[Math.floor(Math.random() * failMessages.length)] + " Toque na foto para girar!";
   }
+
   phase = 'spin';
 };
 
-// ===== PEÃO DO BAÚ: a foto gira e para num prêmio =====
+// ===== GIRO DO PIÃO DO BAÚ =====
+frameContainer.onclick = () => {
+  if (phase !== 'spin' || spinning) return;
+  spin();
+};
+
 function spin(){
-  if(spinning) return; spinning = true;
+  spinning = true;
   const r = Math.random(), prize = r < .5 ? 10 : r < .85 ? 20 : 50;
   const angle = (5 + Math.floor(Math.random()*3))*360 + Math.random()*360;
-  disc.style.transition = 'transform 4s cubic-bezier(.12,.6,.1,1)';
-  disc.style.transform = `rotate(${angle}deg)`;
+  
+  frameContainer.style.transition = 'transform 4s cubic-bezier(.12,.6,.1,1)';
+  frameContainer.style.transform = `rotate(${angle}deg)`;
+  
   let i = 0;
-  const t = setInterval(() => { chips.forEach((c,k)=>c.classList.toggle('on', k === i%3)); i++; }, 90);
+  const t = setInterval(() => { 
+    chips.forEach((c,k) => c.classList.toggle('on', k === i%3)); 
+    i++; 
+  }, 90);
+
   setTimeout(() => {
     clearInterval(t);
     chips.forEach(c => c.classList.toggle('on', Number(c.dataset.v) === prize));
     addScore(prize);
-    msg.className = 'good'; msg.textContent = `🎉 +${prize} pontos!`;
-    phase = 'done'; spinning = false;
-    $('again').classList.remove('hide'); $('home').classList.remove('hide');
+    msg.className = 'good'; 
+    msg.textContent = `🎉 ROLETA DA BUROCRACIA: +${prize} PONTOS!`;
+    phase = 'done'; 
+    spinning = false;
+    $('again').classList.remove('hide');$('home').classList.remove('hide');
   }, 4100);
 }
 
-// ===== PONTOS (mesma chave do hub) =====
+// ===== PONTUAÇÃO (Memory Club) =====
 let session = 0;
 function addScore(n){
-  session += n; $('score').textContent = `PTS: ${session}`;
-  try { localStorage.setItem('memoryClub_totalScore', String(parseInt(localStorage.getItem('memoryClub_totalScore')||'0',10)+n)); } catch(e){}
+  session += n; 
+  $('score').textContent = `PTS: ${session}`;
+  try { 
+    localStorage.setItem('memoryClub_totalScore', String(parseInt(localStorage.getItem('memoryClub_totalScore')||'0',10)+n)); 
+  } catch(e){}
 }
 
-$('again').onclick = newRound;
-$('home').onclick = () => { phase = 'start'; show('start'); };
+$('again').onclick = startCamera;
+$('home').onclick = () => { 
+  stopCamera(); 
+  phase = 'start'; 
+  show('start'); 
+};
 </script>
 </body>
 </html>
